@@ -3,6 +3,7 @@ package com.krasova.entity;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.Date;
 
 /**
  * Created by osamo on 3/23/2017.
@@ -25,5 +26,5 @@ public class FileMetadata {
     @Column(name = "description", length = 255)
     private String description;
     @Column(name = "uploadDate", length = 255)
-    private String uploadDate;
+    private Date uploadDate;
 }

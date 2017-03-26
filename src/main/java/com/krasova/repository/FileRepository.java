@@ -13,5 +13,5 @@ import java.util.List;
 @Repository
 public interface FileRepository extends JpaRepository<FileMetadata, Long> {
     FileMetadata findByName(String name);
-    List<FileMetadata> findAfterUploadDate(Date uploadDate);
+    List<FileMetadata> findByUploadDateBetween(Date startDate, Date endDate);
 }

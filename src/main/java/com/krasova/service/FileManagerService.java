@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 
 /**
  * Created by osamo on 3/23/2017.
@@ -26,7 +27,7 @@ import java.nio.file.Paths;
 public class FileManagerService {
 
     private final Path rootLocation = Paths.get("upload");
-    //private final Path rootLocation;
+//    private final Path rootLocation;
 
     @Autowired
     private FileRepository fileRepository;
@@ -43,7 +44,7 @@ public class FileManagerService {
                 throw new StorageException("Failed to store empty file " + file.getOriginalFilename());
             }
             Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
-            fileRepository.save(FileMetadata.builder().name(file.getOriginalFilename()).category(category).description(description).build());
+            fileRepository.save(FileMetadata.builder().name(file.getOriginalFilename()).category(category).description(description).uploadDate(new Date()).build());
         } catch (IOException e) {
             throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
         }
