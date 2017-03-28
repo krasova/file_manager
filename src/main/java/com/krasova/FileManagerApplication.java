@@ -1,7 +1,7 @@
 package com.krasova;
 
 import com.krasova.config.FileManagerProperties;
-import com.krasova.service.FileManagerService;
+import com.krasova.service.StorageService;
 import org.h2.server.web.WebServlet;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -22,10 +22,10 @@ public class FileManagerApplication {
 	}
 
     @Bean
-    CommandLineRunner init(FileManagerService fileManagerService) {
+    CommandLineRunner init(StorageService storageService) {
         return (args) -> {
-            fileManagerService.deleteAll();
-            fileManagerService.init();
+            storageService.deleteAll();
+            storageService.init();
         };
     }
 

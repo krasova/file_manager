@@ -10,14 +10,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Date;
 
 /**
@@ -26,41 +22,16 @@ import java.util.Date;
 @Service
 public class FileManagerService {
 
-    private final Path rootLocation = Paths.get("upload");
-//    private final Path rootLocation;
+    @Autowired
+    private StorageService storageService;
 
     @Autowired
     private FileRepository fileRepository;
 
-//    @Autowired
-//    public FileManagerService(FileManagerProperties fileManagerProperties) {
-//        this.rootLocation = Paths.get(fileManagerProperties.getUploadDirectory());
-//    }
-
     @Transactional
     public void store(MultipartFile file, String category, String description) {
-        try {
-            if (file.isEmpty()) {
-                throw new StorageException("Failed to store empty file " + file.getOriginalFilename());
-            }
-            Files.copy(file.getInputStream(), this.rootLocation.resolve(file.getOriginalFilename()));
-            fileRepository.save(FileMetadata.builder().name(file.getOriginalFilename()).category(category).description(description).uploadDate(new Date()).build());
-        } catch (IOException e) {
-            throw new StorageException("Failed to store file " + file.getOriginalFilename(), e);
-        }
-    }
-
-    public void deleteAll() {
-        FileSystemUtils.deleteRecursively(rootLocation.toFile());
-    }
-
-
-    public void init() {
-        try {
-            Files.createDirectory(rootLocation);
-        } catch (IOException e) {
-            throw new StorageException("Could not initialize storage", e);
-        }
+        storageService.storeFile(file);
+        fileRepository.save(FileMetadata.builder().name(file.getOriginalFilename()).category(category).description(description).uploadDate(new Date()).build());
     }
 
     public FileMetadataDto loadMetadata(String filename) {
@@ -76,13 +47,9 @@ public class FileManagerService {
             return FileMetadataDto.builder().attachmentId(fileMetadata.getId()).category(fileMetadata.getCategory()).name(fileMetadata.getName()).description(fileMetadata.getDescription()).build();
     }
 
-    private Path load(String filename) {
-        return rootLocation.resolve(filename);
-    }
-
     public Resource loadAsResource(String filename) {
         try {
-            Path file = load(filename);
+            Path file = storageService.load(filename);
             Resource resource = new UrlResource(file.toUri());
             if(resource.exists() || resource.isReadable()) {
                 return resource;
